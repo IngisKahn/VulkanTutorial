@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32203.90
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VulkanTutorial.DrawATriangle", "VulkanTutorial.DrawATriangle\VulkanTutorial.DrawATriangle.csproj", "{AB8724B2-7963-4F0B-9850-7E1619D80829}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VulkanTutorial.UsingBuffers", "VulkanTutorial.UsingBuffers\VulkanTutorial.UsingBuffers.csproj", "{9A845527-E339-481C-A4AC-053FACFA867B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VulkanTutorial.UniformBuffers", "VulkanTutorial.UniformBuffers\VulkanTutorial.UniformBuffers.csproj", "{8084330D-0269-4532-A040-3A6E468A6B84}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB8724B2-7963-4F0B-9850-7E1619D80829}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB8724B2-7963-4F0B-9850-7E1619D80829}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB8724B2-7963-4F0B-9850-7E1619D80829}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB8724B2-7963-4F0B-9850-7E1619D80829}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A845527-E339-481C-A4AC-053FACFA867B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A845527-E339-481C-A4AC-053FACFA867B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A845527-E339-481C-A4AC-053FACFA867B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A845527-E339-481C-A4AC-053FACFA867B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8084330D-0269-4532-A040-3A6E468A6B84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8084330D-0269-4532-A040-3A6E468A6B84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8084330D-0269-4532-A040-3A6E468A6B84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8084330D-0269-4532-A040-3A6E468A6B84}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {69E82546-BB1D-4D20-962E-CE7DA52FD915}
+	EndGlobalSection
+EndGlobal
