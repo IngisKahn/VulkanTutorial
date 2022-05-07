@@ -15,22 +15,25 @@
   <ItemGroup>
     <None Remove="shader.frag.spv" />
     <None Remove="shader.vert.spv" />
+    <None Remove="texture.jpg" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="shader.frag.spv" />
     <EmbeddedResource Include="shader.vert.spv" />
+    <EmbeddedResource Include="texture.jpg" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.Core" Version="2.13.0" />
-    <PackageReference Include="Silk.NET.GLFW" Version="2.13.0" />
-    <PackageReference Include="Silk.NET.Input" Version="2.13.0" />
-    <PackageReference Include="Silk.NET.Maths" Version="2.13.0" />
-    <PackageReference Include="Silk.NET.Vulkan" Version="2.13.0" />
-    <PackageReference Include="Silk.NET.Vulkan.Extensions.EXT" Version="2.13.0" />
-    <PackageReference Include="Silk.NET.Vulkan.Extensions.GOOGLE" Version="2.13.0" />
-    <PackageReference Include="Silk.NET.Vulkan.Extensions.KHR" Version="2.13.0" />
+    <PackageReference Include="Silk.NET.Core" Version="2.15.0" />
+    <PackageReference Include="Silk.NET.GLFW" Version="2.15.0" />
+    <PackageReference Include="Silk.NET.Input" Version="2.15.0" />
+    <PackageReference Include="Silk.NET.Maths" Version="2.15.0" />
+    <PackageReference Include="Silk.NET.Vulkan" Version="2.15.0" />
+    <PackageReference Include="Silk.NET.Vulkan.Extensions.EXT" Version="2.15.0" />
+    <PackageReference Include="Silk.NET.Vulkan.Extensions.GOOGLE" Version="2.15.0" />
+    <PackageReference Include="Silk.NET.Vulkan.Extensions.KHR" Version="2.15.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
