@@ -12,9 +12,11 @@ public sealed class VulkanVirtualDevice : VulkanDependancy, IDisposable
     public Queue GraphicsQueue => this.graphicsQueue;
     private readonly Queue presentQueue;
     public Queue PresentQueue => this.presentQueue;
+    public VulkanPhysicalDevice PhysicalDevice { get; }
 
     public VulkanVirtualDevice(Vk vk, VulkanInstance vulkanInstance, VulkanPhysicalDevice vulkanPhysicalDevice, string[] deviceExtensions) : base(vk)
     {
+        this.PhysicalDevice = vulkanPhysicalDevice;
         var (graphicsFamily, presentFamily) = vulkanPhysicalDevice.FindQueueFamilies();
         var uniqueQueueFamilies = graphicsFamily == presentFamily
             ? new[] { graphicsFamily!.Value }

@@ -6,12 +6,10 @@ public sealed class VulkanVertexBuffer : VulkanDeviceBuffer<Vertex>
 {
     public VulkanVertexBuffer(
         Vk vk,
-        VulkanPhysicalDevice physicalDevice,
         VulkanVirtualDevice device, VulkanCommandPool commandPool,
         Vertex[] vertices) :
         base(
             vk,
-            physicalDevice,
             device, commandPool,
             vertices,
             BufferUsageFlags.BufferUsageVertexBufferBit) { }

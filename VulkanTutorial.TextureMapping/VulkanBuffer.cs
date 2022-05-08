@@ -10,13 +10,10 @@ public class VulkanBuffer : VulkanDeviceDependancy, IDisposable
     protected readonly DeviceMemory memory;
     public DeviceMemory Memory => this.memory;
 
-    private readonly VulkanPhysicalDevice physicalDevice;
-
     protected ulong Size { get; }
 
-    public VulkanBuffer(Vk vk, VulkanPhysicalDevice physicalDevice, VulkanVirtualDevice device, ulong size, BufferUsageFlags usageFlags, MemoryPropertyFlags propertyFlags) : base(vk, device)
+    public VulkanBuffer(Vk vk, VulkanVirtualDevice device, ulong size, BufferUsageFlags usageFlags, MemoryPropertyFlags propertyFlags) : base(vk, device)
     {
-        this.physicalDevice = physicalDevice;
         this.Size = size;
         unsafe
         {
@@ -26,7 +23,7 @@ public class VulkanBuffer : VulkanDeviceDependancy, IDisposable
 
             vk.GetBufferMemoryRequirements(device.Device, this.buffer, out var memoryRequirements);
 
-            MemoryAllocateInfo allocInfo = new(allocationSize: memoryRequirements.Size, memoryTypeIndex: this.FindMemoryType(memoryRequirements.MemoryTypeBits, propertyFlags));
+            MemoryAllocateInfo allocInfo = new(allocationSize: memoryRequirements.Size, memoryTypeIndex: device.PhysicalDevice.FindMemoryType(memoryRequirements.MemoryTypeBits, propertyFlags));
 
             // TODO: this is bad, use VMASharp
             fixed (DeviceMemory* pVertexBufferMemory = &this.memory)

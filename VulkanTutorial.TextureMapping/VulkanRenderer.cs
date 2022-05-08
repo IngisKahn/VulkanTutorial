@@ -82,9 +82,8 @@ public sealed class VulkanRenderer : IDisposable
         this.descriptorSets = new(this.vk, this.device, this.descriptorSetLayout, this.uniformBuffers);
 
         this.commandPool = new(this.vk, this.physicalDevice, this.device);
-        this.vertexBuffer = new(this.vk, this.physicalDevice, this.device, this.commandPool, vertices);
-        this.indexBuffer = new(this.vk, this.physicalDevice, this.device, this.commandPool, indices);
-
+        this.vertexBuffer = new(this.vk, this.device, this.commandPool, vertices);
+        this.indexBuffer = new(this.vk, this.device, this.commandPool, indices);
 
 
         this.commandBuffers = new(this.vk, this.device, this.swapchain, this.commandPool, this.indexBuffer, this.vertexBuffer, indices.Length, descriptorSets);
@@ -97,7 +96,7 @@ public sealed class VulkanRenderer : IDisposable
     private void CreateUniformBuffers()
     {
         for (var i = 0; i < this.uniformBuffers.Length; i++)
-            this.uniformBuffers[i] = new(this.vk, this.physicalDevice, this.device);
+            this.uniformBuffers[i] = new(this.vk, this.device);
     }
 
     private void Window_OnResetRenderer(object? sender, EventArgs e)
