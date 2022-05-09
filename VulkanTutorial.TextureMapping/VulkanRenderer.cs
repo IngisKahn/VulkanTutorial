@@ -24,7 +24,7 @@ public sealed class VulkanRenderer : IDisposable
     private readonly VulkanVirtualDevice device;
     private VulkanSwapChain swapchain;
     private readonly VulkanCommandPool commandPool;
-    private VulkanCommandBuffers commandBuffers;
+    private VulkanRenderCommandBuffers commandBuffers;
 
     private readonly VulkanSyncObjects syncObjects;
     private uint currentFrame;
@@ -123,7 +123,7 @@ public sealed class VulkanRenderer : IDisposable
         this.swapchain = new(this.vk, this.window.Window, this.instance, this.physicalDevice, this.device, in this.surface, this.descriptorSetLayout);
 
 
-        this.commandBuffers = new VulkanCommandBuffers(this.vk, this.device, this.swapchain, this.commandPool, this.indexBuffer, this.vertexBuffer, indices.Length, this.descriptorSets);
+        this.commandBuffers = new VulkanRenderCommandBuffers(this.vk, this.device, this.swapchain, this.commandPool, this.indexBuffer, this.vertexBuffer, indices.Length, this.descriptorSets);
 
         this.imagesInFlight = new Fence[this.swapchain.SwapchainImages.Length];
     }

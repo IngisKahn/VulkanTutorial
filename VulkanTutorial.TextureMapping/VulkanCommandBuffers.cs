@@ -2,12 +2,12 @@
 
 namespace VulkanTutorial.TextureMapping;
 
-public sealed class VulkanCommandBuffers
+public sealed class VulkanRenderCommandBuffers
 {
     private readonly CommandBuffer[] commandBuffers;
     public CommandBuffer this[int i] => this.commandBuffers[i];
 
-    public VulkanCommandBuffers(Vk vk, VulkanVirtualDevice device, VulkanSwapChain swapChain, VulkanCommandPool commandPool, VulkanIndexBuffer indexBuffer, VulkanVertexBuffer vertexBuffer, int indexCount, VulkanDescriptorSetsBase descriptorSets)
+    public VulkanRenderCommandBuffers(Vk vk, VulkanVirtualDevice device, VulkanSwapChain swapChain, VulkanCommandPool commandPool, VulkanIndexBuffer indexBuffer, VulkanVertexBuffer vertexBuffer, int indexCount, VulkanDescriptorSetsBase descriptorSets)
     {
         this.commandBuffers = new CommandBuffer[swapChain.FrameBuffers.Length];
 
