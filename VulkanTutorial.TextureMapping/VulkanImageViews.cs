@@ -3,29 +3,49 @@ using Silk.NET.Vulkan;
 
 public sealed class VulkanImageViews : VulkanDeviceDependancy, IDisposable
 {
-    private readonly ImageView[] swapchainImageViews;
+    private readonly VulkanImageView[] swapchainImageViews;
     public VulkanImageViews(Vk vk, VulkanVirtualDevice device, VulkanSwapChain swapChain) : base(vk, device)
     {
         var images = swapChain.SwapchainImages;
         var format = swapChain.SwapchainImageFormat;
-        this.swapchainImageViews = new ImageView[images.Length];
+        this.swapchainImageViews = new VulkanImageView[images.Length];
 
         for (var i = 0; i < images.Length; i++)
         {
-            var createInfo = new ImageViewCreateInfo
-            {
-                SType = StructureType.ImageViewCreateInfo,
-                Image = images[i],
-                ViewType = ImageViewType.ImageViewType2D,
-                Format = format,
-                Components =
+            this.swapchainImageViews[i] = new(vk, device, images[i], format);
+        }
+    }
+
+    public int Length => this.swapchainImageViews.Length;
+    public VulkanImageView this[int i] => this.swapchainImageViews[i];
+
+    public void Dispose()
+    {
+        foreach (var imageView in this.swapchainImageViews)
+            imageView.Dispose();
+    }
+}
+
+public sealed class VulkanImageView : VulkanDeviceDependancy, IDisposable
+{
+    public ImageView ImageView;
+    public VulkanImageView(Vk vk, VulkanVirtualDevice device, VulkanImage image, Format format) : this(vk, device, image.Image, format) { }
+    internal VulkanImageView(Vk vk, VulkanVirtualDevice device, Image image, Format format) : base(vk, device)
+    {
+        var createInfo = new ImageViewCreateInfo
+        {
+            SType = StructureType.ImageViewCreateInfo,
+            Image = image,
+            ViewType = ImageViewType.ImageViewType2D,
+            Format = format,
+            Components =
                 {
                     R = ComponentSwizzle.Identity,
                     G = ComponentSwizzle.Identity,
                     B = ComponentSwizzle.Identity,
                     A = ComponentSwizzle.Identity
                 },
-                SubresourceRange =
+            SubresourceRange =
                 {
                     AspectMask = ImageAspectFlags.ImageAspectColorBit,
                     BaseMipLevel = 0,
@@ -33,28 +53,21 @@ public sealed class VulkanImageViews : VulkanDeviceDependancy, IDisposable
                     BaseArrayLayer = 0,
                     LayerCount = 1
                 }
-            };
+        };
 
-            ImageView imageView = default;
-            unsafe
-            {
-                if (vk.CreateImageView(device.Device, &createInfo, null, &imageView) != Result.Success)
+        unsafe
+        {
+            fixed (ImageView* pImageView = &this.ImageView)
+                if (vk.CreateImageView(device.Device, &createInfo, null, pImageView) != Result.Success)
                     throw new("failed to create image views!");
-            }
-
-            this.swapchainImageViews[i] = imageView;
         }
     }
-
-    public int Length => this.swapchainImageViews.Length;
-    public ImageView this[int i] => this.swapchainImageViews[i];
 
     public void Dispose()
     {
         unsafe
         {
-            foreach (var imageView in this.swapchainImageViews)
-                this.Vk.DestroyImageView(this.Device.Device, imageView, null);
+            this.Vk.DestroyImageView(this.Device.Device, this.ImageView, null);
         }
     }
 }
