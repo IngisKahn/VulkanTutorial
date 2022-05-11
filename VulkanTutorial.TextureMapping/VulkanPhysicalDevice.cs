@@ -32,12 +32,16 @@ public sealed class VulkanPhysicalDevice : VulkanDependancy
 
         // note: should require geometry shader
         // should rate devices here
+        //
         //// Discrete GPUs have a significant performance advantage
         //if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
         //{
         //    score += 1000;
         //}
+        //VkPhysicalDeviceFeatures supportedFeatures;
+        //vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
+        //return indices.isComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
         //// Maximum possible size of textures affects graphics quality
         //score += deviceProperties.limits.maxImageDimension2D;
         foreach (var device in devices)

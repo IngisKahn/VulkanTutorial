@@ -18,19 +18,22 @@ public sealed class VulkanFrameBuffers : VulkanDeviceDependancy, IDisposable
             Framebuffer framebuffer = new();
             unsafe
             {
-                var framebufferInfo = new FramebufferCreateInfo
+                fixed (ImageView* pImageView = &attachment.ImageView)
                 {
-                    SType = StructureType.FramebufferCreateInfo,
-                    RenderPass = swapChain.RenderPass.RenderPass,
-                    AttachmentCount = 1,
-                    PAttachments = &attachment,
-                    Width = swapChain.SwapchainExtent.Width,
-                    Height = swapChain.SwapchainExtent.Height,
-                    Layers = 1
-                };
+                    var framebufferInfo = new FramebufferCreateInfo
+                    {
+                        SType = StructureType.FramebufferCreateInfo,
+                        RenderPass = swapChain.RenderPass.RenderPass,
+                        AttachmentCount = 1,
+                        PAttachments = pImageView,
+                        Width = swapChain.SwapchainExtent.Width,
+                        Height = swapChain.SwapchainExtent.Height,
+                        Layers = 1
+                    };
 
-                if (vk.CreateFramebuffer(device.Device, &framebufferInfo, null, &framebuffer) != Result.Success)
-                    throw new("failed to create framebuffer!");
+                    if (vk.CreateFramebuffer(device.Device, &framebufferInfo, null, &framebuffer) != Result.Success)
+                        throw new("failed to create framebuffer!");
+                }
             }
 
             this.framebuffers[i] = framebuffer;

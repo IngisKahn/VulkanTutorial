@@ -41,7 +41,7 @@ public sealed class VulkanVirtualDevice : VulkanDependancy, IDisposable
                 queueCreateInfos[i] = queueCreateInfo;
             }
 
-            var deviceFeatures = new PhysicalDeviceFeatures();
+            PhysicalDeviceFeatures deviceFeatures = new(samplerAnisotropy: true); // pass in device support
 
             var createInfo = new DeviceCreateInfo
             {

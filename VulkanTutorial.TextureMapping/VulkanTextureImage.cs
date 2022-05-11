@@ -75,11 +75,11 @@ public sealed class VulkanTextureSampler : VulkanDeviceDependancy, IDisposable
                 addressModeU: SamplerAddressMode.Repeat,
                 addressModeV: SamplerAddressMode.Repeat,
                 addressModeW: SamplerAddressMode.Repeat,
-                anisotropyEnable: new(true),
-                maxAnisotropy: deviceProperties.Limits.MaxSamplerAnisotropy,
+                anisotropyEnable: true, // if device support
+                maxAnisotropy: deviceProperties.Limits.MaxSamplerAnisotropy, // if device support else 1
                 borderColor: BorderColor.IntOpaqueBlack,
-                unnormalizedCoordinates: new(false),
-                compareEnable: new(false),
+                unnormalizedCoordinates: false,
+                compareEnable: false,
                 compareOp: CompareOp.Always,
                 mipmapMode: SamplerMipmapMode.Linear,
                 mipLodBias: 0,
