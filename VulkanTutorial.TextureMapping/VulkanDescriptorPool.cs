@@ -9,10 +9,10 @@ public sealed class VulkanDescriptorPool : VulkanDeviceDependancy, IDisposable
 
     public VulkanDescriptorPool(Vk vk, VulkanVirtualDevice device) : base(vk, device)
     {
-        DescriptorPoolSize poolSize = new(type: DescriptorType.UniformBuffer, VulkanSyncObjects.MaxFramesInFlight);
         unsafe
         {
-            DescriptorPoolCreateInfo poolInfo = new(poolSizeCount: 1, pPoolSizes: &poolSize, maxSets: VulkanSyncObjects.MaxFramesInFlight);
+            var pPoolSizes = stackalloc DescriptorPoolSize[2] { new(type: DescriptorType.UniformBuffer, VulkanSyncObjects.MaxFramesInFlight), new(type: DescriptorType.CombinedImageSampler, VulkanSyncObjects.MaxFramesInFlight) };
+            DescriptorPoolCreateInfo poolInfo = new(poolSizeCount: 2, pPoolSizes: pPoolSizes, maxSets: VulkanSyncObjects.MaxFramesInFlight);
             fixed (DescriptorPool* pDescriptorPool = &this.descriptorPool)
             if (this.Vk.CreateDescriptorPool(this.Device.Device, in poolInfo, null, pDescriptorPool) != Result.Success)
                 throw new VulkanException("failed to create descriptor pool!");

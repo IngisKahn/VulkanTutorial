@@ -12,7 +12,12 @@ public sealed class VulkanDescriptorSetLayout : VulkanDeviceDependancy, IDisposa
         unsafe
         {
             DescriptorSetLayoutBinding layoutBinding = new(0, DescriptorType.UniformBuffer, descriptorCount: 1, stageFlags: ShaderStageFlags.ShaderStageVertexBit);
-            DescriptorSetLayoutCreateInfo createInfo = new(bindingCount: 1, pBindings: &layoutBinding);
+
+            DescriptorSetLayoutBinding samplerLayoutBinding = new(1, DescriptorType.CombinedImageSampler, 1, ShaderStageFlags.ShaderStageFragmentBit);
+
+            var pBindings = stackalloc DescriptorSetLayoutBinding[2] { layoutBinding, samplerLayoutBinding };
+
+            DescriptorSetLayoutCreateInfo createInfo = new(bindingCount: 2, pBindings: pBindings);
             fixed (DescriptorSetLayout* pLayout = &this.Layout)
                 if (this.Vk.CreateDescriptorSetLayout(this.Device.Device, in createInfo, null, pLayout) != Result.Success)
                     throw new VulkanException("failed to create descriptor set layout!");

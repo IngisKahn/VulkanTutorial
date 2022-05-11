@@ -6,6 +6,7 @@ using Silk.NET.Vulkan.Extensions.KHR;
 using Semaphore = Silk.NET.Vulkan.Semaphore;
 using Matrix4 = Silk.NET.Maths.Matrix4X4<float>;
 using Silk.NET.Maths;
+using System.Reflection;
 
 namespace VulkanTutorial.TextureMapping;
 
@@ -24,34 +25,37 @@ public sealed class VulkanRenderer : IDisposable
     private readonly VulkanVirtualDevice device;
     private VulkanSwapChain swapchain;
     private readonly VulkanCommandPool commandPool;
-    private VulkanRenderCommandBuffers commandBuffers;
+    private VulkanRenderCommandBuffers? commandBuffers;
 
-    private readonly VulkanSyncObjects syncObjects;
+    private VulkanSyncObjects? syncObjects;
     private uint currentFrame;
 
     private bool framebufferResized;
 
+    private VulkanTextureImage? textureImage;
+    private VulkanTextureSampler? textureSampler;
+
     private readonly VulkanUniformBuffer<UniformBufferedObject>[] uniformBuffers = new VulkanUniformBuffer<UniformBufferedObject>[VulkanSyncObjects.MaxFramesInFlight];
-    private readonly VulkanVertexBuffer vertexBuffer;
-    private readonly VulkanIndexBuffer indexBuffer;
-    private Fence[] imagesInFlight;
+    private VulkanVertexBuffer? vertexBuffer;
+    private VulkanIndexBuffer? indexBuffer;
+    private Fence[]? imagesInFlight;
 
     private readonly VulkanDescriptorSetLayout descriptorSetLayout;
-    private readonly VulkanDescriptorSets<UniformBufferedObject> descriptorSets;
+    private VulkanDescriptorSets<UniformBufferedObject>? descriptorSets;
 
     private static readonly string[] deviceExtensions = { KhrSwapchain.ExtensionName };
 
     private static readonly Vertex[] vertices =
     {
-        new(new(-.5f, -.5f), new(1, 0, 0)),
-        new(new(.5f, -.5f), new(0, 1, 0)),
-        new(new(.5f, .5f), new(0, 0, 1)),
-        new(new(-.5f, .5f), new(1, 1, 1))
+        new(new(-.5f, -.5f), new(1, 0, 0), new(1, 0)),
+        new(new(.5f, -.5f), new(0, 1, 0), new(0, 0)),
+        new(new(.5f, .5f), new(0, 0, 1), new(0, 1)),
+        new(new(-.5f, .5f), new(1, 1, 1), new(1, 1))
     };
 
     private static readonly ushort[] indices = { 0, 1, 2, 2, 3, 0 };
 
-    public VulkanRenderer(VulkanWindow window)
+    private VulkanRenderer(VulkanWindow window)
     {
         this.window = window;
         window.OnResetRenderer += this.Window_OnResetRenderer;
@@ -79,9 +83,18 @@ public sealed class VulkanRenderer : IDisposable
         this.swapchain = new(this.vk, window.Window, this.instance, this.physicalDevice, this.device, in this.surface, this.descriptorSetLayout);
 
         this.CreateUniformBuffers();
-        this.descriptorSets = new(this.vk, this.device, this.descriptorSetLayout, this.uniformBuffers);
-
         this.commandPool = new(this.vk, this.physicalDevice, this.device);
+    }
+
+    private async Task Initialize()    
+    {
+
+        var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+        using var s = typeof(Program).Assembly.GetManifestResourceStream(assemblyName + ".texture.jpg");
+        this.textureImage = await VulkanTextureImage.Load(this.vk, this.device, s, this.commandPool);
+        this.textureSampler = new(this.vk, this.device);
+        this.descriptorSets = new(this.vk, this.device, this.descriptorSetLayout, this.uniformBuffers, this.textureImage, this.textureSampler);
+
         this.vertexBuffer = new(this.vk, this.device, this.commandPool, vertices);
         this.indexBuffer = new(this.vk, this.device, this.commandPool, indices);
 
@@ -91,6 +104,13 @@ public sealed class VulkanRenderer : IDisposable
         this.imagesInFlight = new Fence[this.swapchain.ImageViews.Length];
 
         this.window.Window.Render += this.DrawFrame;
+    }
+
+    public static async Task<VulkanRenderer> Load(VulkanWindow window)
+    {
+        VulkanRenderer renderer = new(window);
+        await renderer.Initialize();
+        return renderer;
     }
 
     private void CreateUniformBuffers()
@@ -193,6 +213,9 @@ public sealed class VulkanRenderer : IDisposable
 
         foreach (var uniformBuffer in this.uniformBuffers)
             uniformBuffer.Dispose();
+
+        this.textureImage.Dispose();
+        this.textureSampler.Dispose();
 
         this.descriptorSets.Dispose();
 

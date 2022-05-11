@@ -11,7 +11,7 @@ public sealed class VulkanTextureImage : VulkanDeviceDependancy, IDisposable
     public VulkanImage? Image { get; private set; }
     public VulkanImageView? ImageView { get; private set; }
 
-    public VulkanTextureImage(Vk vk, VulkanVirtualDevice device) : base(vk, device) { }
+    private VulkanTextureImage(Vk vk, VulkanVirtualDevice device) : base(vk, device) { }
 
     private async Task Initialize(Stream imageStream, VulkanCommandPool commandPool)
     {

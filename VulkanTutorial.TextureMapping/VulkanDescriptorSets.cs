@@ -14,7 +14,7 @@ public abstract class VulkanDescriptorSetsBase : VulkanDeviceDependancy
 public sealed class VulkanDescriptorSets<T> : VulkanDescriptorSetsBase, IDisposable where T : unmanaged
 {
     private readonly VulkanDescriptorPool descriptorPool;
-    public VulkanDescriptorSets(Vk vk, VulkanVirtualDevice device, VulkanDescriptorSetLayout vulkanDescriptorSetLayout, VulkanUniformBuffer<T>[] uniformBuffers) : base(vk, device)
+    public VulkanDescriptorSets(Vk vk, VulkanVirtualDevice device, VulkanDescriptorSetLayout vulkanDescriptorSetLayout, VulkanUniformBuffer<T>[] uniformBuffers, VulkanTextureImage textureImage, VulkanTextureSampler sampler) : base(vk, device)
     {
         this.descriptorPool = new(vk, device);
         var layouts = new DescriptorSetLayout[VulkanSyncObjects.MaxFramesInFlight];
@@ -29,12 +29,17 @@ public sealed class VulkanDescriptorSets<T> : VulkanDescriptorSetsBase, IDisposa
                     if (this.Vk.AllocateDescriptorSets(this.Device.Device, in allocateInfo, pDescriptorSets) != Result.Success)
                         throw new VulkanException("failed to allocate descriptor sets!");
 
+                    var descriptorWrites = stackalloc WriteDescriptorSet[2];
+                        DescriptorImageInfo imageInfo = new(sampler.Sampler, textureImage.ImageView!.ImageView, ImageLayout.ShaderReadOnlyOptimal);
                     for (var i = 0; i < VulkanSyncObjects.MaxFramesInFlight; i++)
                     {
                         var uniformBuffer = uniformBuffers[i];
                         DescriptorBufferInfo bufferInfo = new(uniformBuffer.Buffer, 0, (ulong)sizeof(T));
-                        WriteDescriptorSet descriptorWrite = new(dstSet: pDescriptorSets[i], dstBinding: 0, dstArrayElement: 0, descriptorType: DescriptorType.UniformBuffer, descriptorCount: 1, pBufferInfo: &bufferInfo);
-                        vk.UpdateDescriptorSets(device.Device, 1, &descriptorWrite, 0, null);
+
+
+                        descriptorWrites[0] = new(dstSet: pDescriptorSets[i], dstBinding: 0, dstArrayElement: 0, descriptorType: DescriptorType.UniformBuffer, descriptorCount: 1, pBufferInfo: &bufferInfo);
+                        descriptorWrites[1] = new(dstSet: pDescriptorSets[i], dstBinding: 1, dstArrayElement: 0, descriptorType: DescriptorType.CombinedImageSampler, descriptorCount: 1, pImageInfo: &imageInfo);
+                        vk.UpdateDescriptorSets(device.Device, 2, descriptorWrites, 0, null);
                     }
                 }
             }

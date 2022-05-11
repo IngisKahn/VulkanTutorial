@@ -9,10 +9,10 @@ internal static class Program
     /// <summary>
     ///  The main entry point for the application.
     /// </summary>
-    static void Main()
+    static async Task Main()
     {
         VulkanWindow window = new(800, 600);
-        VulkanRenderer renderer = new(window);
+        var renderer = await VulkanRenderer.Load(window);
         window.Window.Run();
         renderer.WaitForIdle();
         renderer.Dispose();

@@ -58,7 +58,7 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
                 srcQueueFamilyIndex: Vk.QueueFamilyIgnored, 
                 dstQueueFamilyIndex: Vk.QueueFamilyIgnored,
                 image: this.Image,
-                subresourceRange: new(ImageAspectFlags.ImageAspectColorBit, 0, 1, 0, 1),
+                subresourceRange: new(ImageAspectFlags.ImageAspectColorBit, 0, 1, 0, 1)
                 );
 
             PipelineStageFlags sourceStage, destinationStage;
