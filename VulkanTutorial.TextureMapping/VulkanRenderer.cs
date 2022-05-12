@@ -20,7 +20,7 @@ public sealed class VulkanRenderer : IDisposable
     private ExtDebugUtils? debugUtils;
     private DebugUtilsMessengerEXT debugMessenger;
 #endif
-    private readonly SurfaceKHR surface; 
+    private readonly SurfaceKHR surface;
     private readonly VulkanPhysicalDevice physicalDevice;
     private readonly VulkanVirtualDevice device;
     private VulkanSwapChain swapchain;
@@ -55,7 +55,7 @@ public sealed class VulkanRenderer : IDisposable
 
     private static readonly ushort[] indices = { 0, 1, 2, 2, 3, 0 };
 
-    private VulkanRenderer(VulkanWindow window)
+    public VulkanRenderer(VulkanWindow window)
     {
         this.window = window;
         window.OnResetRenderer += this.Window_OnResetRenderer;
@@ -84,14 +84,10 @@ public sealed class VulkanRenderer : IDisposable
 
         this.CreateUniformBuffers();
         this.commandPool = new(this.vk, this.physicalDevice, this.device);
-    }
-
-    private async Task Initialize()    
-    {
 
         var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
         using var s = typeof(Program).Assembly.GetManifestResourceStream(assemblyName + ".texture.jpg");
-        this.textureImage = await VulkanTextureImage.Load(this.vk, this.device, s, this.commandPool);
+        this.textureImage = new(this.vk, this.device, this.commandPool, s);
         this.textureSampler = new(this.vk, this.device);
         this.descriptorSets = new(this.vk, this.device, this.descriptorSetLayout, this.uniformBuffers, this.textureImage, this.textureSampler);
 
@@ -103,14 +99,8 @@ public sealed class VulkanRenderer : IDisposable
         this.syncObjects = new(this.vk, this.device);
         this.imagesInFlight = new Fence[this.swapchain.ImageViews.Length];
 
+        this.vk.DeviceWaitIdle(this.device.Device);
         this.window.Window.Render += this.DrawFrame;
-    }
-
-    public static async Task<VulkanRenderer> Load(VulkanWindow window)
-    {
-        VulkanRenderer renderer = new(window);
-        await renderer.Initialize();
-        return renderer;
     }
 
     private void CreateUniformBuffers()
@@ -129,12 +119,12 @@ public sealed class VulkanRenderer : IDisposable
     {
         this.vk.DeviceWaitIdle(this.device.Device);
 
-        foreach (var uniformBuffer in this.uniformBuffers)
-            uniformBuffer.Dispose();
+        //foreach (var uniformBuffer in this.uniformBuffers)
+        //    uniformBuffer.Dispose();
 
         this.swapchain.Dispose();
 
-        this.CreateUniformBuffers();
+        //this.CreateUniformBuffers();
 
         // TODO: On SDL it is possible to get an invalid swap chain when the window is minimized.
         // This check can be removed when the above frameBufferSize check catches it.
@@ -158,7 +148,7 @@ public sealed class VulkanRenderer : IDisposable
     private void SetupDebugMessenger()
     {
 #if VULKAN_VALIDATION
-        if (!this.vk.TryGetInstanceExtension(this.instance.Instance, out this.debugUtils)) 
+        if (!this.vk.TryGetInstanceExtension(this.instance.Instance, out this.debugUtils))
             return;
 
         var createInfo = new DebugUtilsMessengerCreateInfoEXT();

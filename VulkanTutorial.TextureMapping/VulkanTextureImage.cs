@@ -11,11 +11,9 @@ public sealed class VulkanTextureImage : VulkanDeviceDependancy, IDisposable
     public VulkanImage? Image { get; private set; }
     public VulkanImageView? ImageView { get; private set; }
 
-    private VulkanTextureImage(Vk vk, VulkanVirtualDevice device) : base(vk, device) { }
-
-    private async Task Initialize(Stream imageStream, VulkanCommandPool commandPool)
+    public VulkanTextureImage(Vk vk, VulkanVirtualDevice device, VulkanCommandPool commandPool, Stream imageStream) : base(vk, device) 
     {
-        using var image = await RawImage.LoadAsync<Rgba32>(imageStream);
+        using var image = RawImage.Load<Rgba32>(imageStream);
         if (image == null)
             throw new VulkanException("failed to load texture image!");
         var imageSize = image.Width * image.Height * 4;
@@ -50,13 +48,6 @@ public sealed class VulkanTextureImage : VulkanDeviceDependancy, IDisposable
     {
         this.ImageView?.Dispose();
         this.Image?.Dispose();
-    }
-
-    public static async Task<VulkanTextureImage> Load(Vk vk, VulkanVirtualDevice device, Stream imageStream, VulkanCommandPool commandPool)
-    {
-        VulkanTextureImage textureImage = new(vk, device);
-        await textureImage.Initialize(imageStream, commandPool);
-        return textureImage;
     }
 }
 

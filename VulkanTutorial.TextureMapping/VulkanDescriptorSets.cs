@@ -14,7 +14,8 @@ public abstract class VulkanDescriptorSetsBase : VulkanDeviceDependancy
 public sealed class VulkanDescriptorSets<T> : VulkanDescriptorSetsBase, IDisposable where T : unmanaged
 {
     private readonly VulkanDescriptorPool descriptorPool;
-    public VulkanDescriptorSets(Vk vk, VulkanVirtualDevice device, VulkanDescriptorSetLayout vulkanDescriptorSetLayout, VulkanUniformBuffer<T>[] uniformBuffers, VulkanTextureImage textureImage, VulkanTextureSampler sampler) : base(vk, device)
+    public VulkanDescriptorSets(Vk vk, VulkanVirtualDevice device, VulkanDescriptorSetLayout vulkanDescriptorSetLayout, VulkanUniformBuffer<T>[] uniformBuffers, VulkanTextureImage textureImage, VulkanTextureSampler sampler)
+        : base(vk, device)
     {
         this.descriptorPool = new(vk, device);
         var layouts = new DescriptorSetLayout[VulkanSyncObjects.MaxFramesInFlight];

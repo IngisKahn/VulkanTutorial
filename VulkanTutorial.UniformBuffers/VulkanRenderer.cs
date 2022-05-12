@@ -110,12 +110,12 @@ public sealed class VulkanRenderer : IDisposable
     {
         this.vk.DeviceWaitIdle(this.device.Device);
 
-        foreach (var uniformBuffer in this.uniformBuffers)
-            uniformBuffer.Dispose();
+        //foreach (var uniformBuffer in this.uniformBuffers)
+        //    uniformBuffer.Dispose();
 
         this.swapchain.Dispose();
 
-        this.CreateUniformBuffers();
+        //this.CreateUniformBuffers();
 
         // TODO: On SDL it is possible to get an invalid swap chain when the window is minimized.
         // This check can be removed when the above frameBufferSize check catches it.

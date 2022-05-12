@@ -12,7 +12,7 @@ internal static class Program
     static async Task Main()
     {
         VulkanWindow window = new(800, 600);
-        var renderer = await VulkanRenderer.Load(window);
+        VulkanRenderer renderer = new(window);
         window.Window.Run();
         renderer.WaitForIdle();
         renderer.Dispose();
