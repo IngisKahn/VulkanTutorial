@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VulkanTutorial.UniformBuffe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VulkanTutorial.TextureMapping", "VulkanTutorial.TextureMapping\VulkanTutorial.TextureMapping.csproj", "{D6B67395-E4B3-42A4-B43F-F0964CD46E04}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VulkanTutorial.DepthBuffering", "VulkanTutorial.DepthBuffering\VulkanTutorial.DepthBuffering.csproj", "{615380C0-8E5B-4203-A41F-7167F9C9CA78}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{D6B67395-E4B3-42A4-B43F-F0964CD46E04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6B67395-E4B3-42A4-B43F-F0964CD46E04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6B67395-E4B3-42A4-B43F-F0964CD46E04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{615380C0-8E5B-4203-A41F-7167F9C9CA78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{615380C0-8E5B-4203-A41F-7167F9C9CA78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{615380C0-8E5B-4203-A41F-7167F9C9CA78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{615380C0-8E5B-4203-A41F-7167F9C9CA78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
