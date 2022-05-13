@@ -8,35 +8,32 @@ public sealed class VulkanFrameBuffers : VulkanDeviceDependancy, IDisposable
     public int Length => this.framebuffers.Length;
     public Framebuffer this[int i] => this.framebuffers[i];
 
-    public VulkanFrameBuffers(Vk vk, VulkanVirtualDevice device, VulkanSwapChain swapChain) : base(vk, device)
+    public VulkanFrameBuffers(Vk vk, VulkanVirtualDevice device, VulkanSwapChain swapChain, VulkanImageView depthImageView) : base(vk, device)
     {
         this.framebuffers = new Framebuffer[swapChain.ImageViews.Length];
 
-        for (var i = 0; i < swapChain.ImageViews.Length; i++)
+        unsafe
         {
-            var attachment = swapChain.ImageViews[i];
-            Framebuffer framebuffer = new();
-            unsafe
+            var attachments = stackalloc ImageView[2];
+            attachments[1] = depthImageView.ImageView;
+            for (var i = 0; i < swapChain.ImageViews.Length; i++)
             {
-                fixed (ImageView* pImageView = &attachment.ImageView)
-                {
-                    var framebufferInfo = new FramebufferCreateInfo
-                    {
-                        SType = StructureType.FramebufferCreateInfo,
-                        RenderPass = swapChain.RenderPass.RenderPass,
-                        AttachmentCount = 1,
-                        PAttachments = pImageView,
-                        Width = swapChain.SwapchainExtent.Width,
-                        Height = swapChain.SwapchainExtent.Height,
-                        Layers = 1
-                    };
+                attachments[0] = swapChain.ImageViews[i].ImageView;
+                Framebuffer framebuffer = new();
+                FramebufferCreateInfo framebufferInfo = new(
+                    renderPass: swapChain.RenderPass.RenderPass,
+                    attachmentCount: 2,
+                    pAttachments: attachments,
+                    width: swapChain.SwapchainExtent.Width,
+                    height: swapChain.SwapchainExtent.Height,
+                    layers: 1
+                );
 
-                    if (vk.CreateFramebuffer(device.Device, &framebufferInfo, null, &framebuffer) != Result.Success)
-                        throw new("failed to create framebuffer!");
-                }
+                if (vk.CreateFramebuffer(device.Device, &framebufferInfo, null, &framebuffer) != Result.Success)
+                    throw new("failed to create framebuffer!");
+
+                this.framebuffers[i] = framebuffer;
             }
-
-            this.framebuffers[i] = framebuffer;
         }
     }
 

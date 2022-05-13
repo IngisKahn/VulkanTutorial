@@ -20,11 +20,27 @@ public sealed class VulkanRenderPass : VulkanDeviceDependancy, IDisposable
             InitialLayout = ImageLayout.Undefined,
             FinalLayout = ImageLayout.PresentSrcKhr
         };
+        AttachmentDescription depthAttachment = new()
+        {
+            Format = device.PhysicalDevice.DepthFormat,
+            Samples = SampleCountFlags.SampleCount1Bit,
+            LoadOp = AttachmentLoadOp.Clear,
+            StoreOp = AttachmentStoreOp.DontCare,
+            StencilLoadOp = AttachmentLoadOp.DontCare,
+            StencilStoreOp = AttachmentStoreOp.DontCare,
+            InitialLayout = ImageLayout.Undefined,
+            FinalLayout = ImageLayout.DepthStencilAttachmentOptimal
+        };
 
         AttachmentReference colorAttachmentRef = new()
         {
             Attachment = 0,
             Layout = ImageLayout.ColorAttachmentOptimal
+        };
+        AttachmentReference depthAttachmentRef = new()
+        {
+            Attachment = 1,
+            Layout = ImageLayout.DepthStencilAttachmentOptimal
         };
 
         unsafe
@@ -33,29 +49,29 @@ public sealed class VulkanRenderPass : VulkanDeviceDependancy, IDisposable
             {
                 PipelineBindPoint = PipelineBindPoint.Graphics,
                 ColorAttachmentCount = 1,
-                PColorAttachments = &colorAttachmentRef
+                PColorAttachments = &colorAttachmentRef,
+                PDepthStencilAttachment = &depthAttachmentRef
             };
 
             SubpassDependency dependency = new()
             {
                 SrcSubpass = Vk.SubpassExternal,
                 DstSubpass = 0,
-                SrcStageMask = PipelineStageFlags.PipelineStageColorAttachmentOutputBit,
+                SrcStageMask = PipelineStageFlags.PipelineStageColorAttachmentOutputBit | PipelineStageFlags.PipelineStageEarlyFragmentTestsBit,
                 SrcAccessMask = 0,
-                DstStageMask = PipelineStageFlags.PipelineStageColorAttachmentOutputBit,
-                DstAccessMask = AccessFlags.AccessColorAttachmentReadBit | AccessFlags.AccessColorAttachmentWriteBit
+                DstStageMask = PipelineStageFlags.PipelineStageColorAttachmentOutputBit | PipelineStageFlags.PipelineStageEarlyFragmentTestsBit,
+                DstAccessMask = AccessFlags.AccessColorAttachmentReadBit | AccessFlags.AccessColorAttachmentWriteBit | AccessFlags.AccessDepthStencilAttachmentWriteBit
             };
 
-            RenderPassCreateInfo renderPassInfo = new()
-            {
-                SType = StructureType.RenderPassCreateInfo,
-                AttachmentCount = 1,
-                PAttachments = &colorAttachment,
-                SubpassCount = 1,
-                PSubpasses = &subpass,
-                DependencyCount = 1,
-                PDependencies = &dependency
-            };
+            var attachments = stackalloc AttachmentDescription[2] { colorAttachment, depthAttachment };
+            RenderPassCreateInfo renderPassInfo = new(
+                attachmentCount: 2,
+                pAttachments: attachments,
+                subpassCount: 1,
+                pSubpasses: &subpass,
+                dependencyCount: 1,
+                pDependencies: &dependency
+            );
 
             fixed (RenderPass* pRenderPass = &this.renderPass)
                 if (vk.CreateRenderPass(device.Device, &renderPassInfo, null, pRenderPass) != Result.Success)

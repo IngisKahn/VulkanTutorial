@@ -25,9 +25,12 @@ public class VulkanSwapChain : IDisposable
     public VulkanGraphicsPipeline GraphicsPipeline { get; }
     public VulkanFrameBuffers FrameBuffers { get; }
 
+    private readonly VulkanDepthBuffer depthBuffer;
+
     public VulkanSwapChain(Vk vk, IWindow window, VulkanInstance instance, VulkanPhysicalDevice physicalDevice,
-        VulkanVirtualDevice device, in SurfaceKHR surface, VulkanDescriptorSetLayout descriptorSetLayout)
+        VulkanVirtualDevice device, in SurfaceKHR surface, VulkanDescriptorSetLayout descriptorSetLayout, VulkanCommandPool commandPool)
     {
+
         this.device = device;
         var swapChainSupport = physicalDevice.QuerySwapChainSupport();
 
@@ -113,10 +116,12 @@ public class VulkanSwapChain : IDisposable
         swapchainImageFormat = surfaceFormat.Format;
         swapchainExtent = extent;
 
+        this.depthBuffer = new(vk, device, commandPool, extent.Width, extent.Height);
+
         this.imageViews = new(vk, device, this);
         this.RenderPass = new(vk, device, this);
         this.GraphicsPipeline = new(vk, device, this, descriptorSetLayout);
-        this.FrameBuffers = new(vk, device, this);
+        this.FrameBuffers = new(vk, device, this, this.depthBuffer.DepthView);
     }
 
     public void Dispose()
@@ -127,6 +132,7 @@ public class VulkanSwapChain : IDisposable
             this.GraphicsPipeline.Dispose();
             this.RenderPass.Dispose();
             this.imageViews.Dispose();
+            this.depthBuffer.Dispose();
             this.vkSwapchain.DestroySwapchain(this.device.Device, this.swapchain, null);
         }
     }

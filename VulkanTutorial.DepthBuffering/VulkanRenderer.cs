@@ -88,10 +88,11 @@ public sealed class VulkanRenderer : IDisposable
 
         this.descriptorSetLayout = new(this.vk, this.device);
 
-        this.swapchain = new(this.vk, window.Window, this.instance, this.physicalDevice, this.device, in this.surface, this.descriptorSetLayout);
+        this.commandPool = new(this.vk, this.physicalDevice, this.device);
+        this.swapchain = new(this.vk, window.Window, this.instance, this.physicalDevice, this.device, in this.surface, this.descriptorSetLayout, this.commandPool);
 
         this.CreateUniformBuffers();
-        this.commandPool = new(this.vk, this.physicalDevice, this.device);
+
 
         var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
         using var s = typeof(Program).Assembly.GetManifestResourceStream(assemblyName + ".texture.jpg");
@@ -138,7 +139,7 @@ public sealed class VulkanRenderer : IDisposable
         // This check can be removed when the above frameBufferSize check catches it.
         //while (!CreateSwapChain())
         //    window.DoEvents();
-        this.swapchain = new(this.vk, this.window.Window, this.instance, this.physicalDevice, this.device, in this.surface, this.descriptorSetLayout);
+        this.swapchain = new(this.vk, this.window.Window, this.instance, this.physicalDevice, this.device, in this.surface, this.descriptorSetLayout, this.commandPool);
 
 
         this.commandBuffers = new VulkanRenderCommandBuffers(this.vk, this.device, this.swapchain, this.commandPool, this.indexBuffer, this.vertexBuffer, indices.Length, this.descriptorSets);

@@ -25,6 +25,7 @@ public sealed class VulkanRenderCommandBuffers
                 if (vk.AllocateCommandBuffers(device.Device, &allocInfo, pCommandBuffers) != Result.Success)
                     throw new("failed to allocate command buffers!");
 
+            var clearValues = stackalloc ClearValue[2] { new(color: new() { Float32_0 = 0, Float32_1 = 0, Float32_2 = 0, Float32_3 = 1 }), new(depthStencil: new(1, 0)) };
             for (var i = 0; i < this.commandBuffers.Length; i++)
             {
                 CommandBufferBeginInfo beginInfo = new() { SType = StructureType.CommandBufferBeginInfo };
@@ -40,10 +41,8 @@ public sealed class VulkanRenderCommandBuffers
                     RenderArea = { Offset = new() { X = 0, Y = 0 }, Extent = swapChain.SwapchainExtent }
                 };
 
-                ClearValue clearColor = new()
-                { Color = new() { Float32_0 = 0, Float32_1 = 0, Float32_2 = 0, Float32_3 = 1 } };
-                renderPassInfo.ClearValueCount = 1;
-                renderPassInfo.PClearValues = &clearColor;
+                renderPassInfo.ClearValueCount = 2;
+                renderPassInfo.PClearValues = clearValues;
 
                 vk.CmdBeginRenderPass(this.commandBuffers[i], &renderPassInfo, SubpassContents.Inline);
 

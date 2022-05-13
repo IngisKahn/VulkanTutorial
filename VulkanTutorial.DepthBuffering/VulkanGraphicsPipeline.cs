@@ -142,6 +142,17 @@ public class VulkanGraphicsPipeline : VulkanDeviceDependancy, IDisposable
                         if (vk.CreatePipelineLayout(device.Device, &pipelineLayoutInfo, null, pPipelineLayout) != Result.Success)
                             throw new("failed to create pipeline layout!");
                 }
+
+                PipelineDepthStencilStateCreateInfo depthStencil = new(
+                    depthTestEnable: true,
+                    depthWriteEnable: true,
+                    depthCompareOp: CompareOp.Less,
+                    depthBoundsTestEnable: false,
+                    minDepthBounds: 0,
+                    maxDepthBounds: 1,
+                    stencilTestEnable: false
+                    );
+
                 var pipelineInfo = new GraphicsPipelineCreateInfo
                 {
                     SType = StructureType.GraphicsPipelineCreateInfo,
@@ -156,7 +167,8 @@ public class VulkanGraphicsPipeline : VulkanDeviceDependancy, IDisposable
                     Layout = pipelineLayout,
                     RenderPass = swapChain.RenderPass.RenderPass,
                     Subpass = 0,
-                    BasePipelineHandle = default
+                    BasePipelineHandle = default,
+                    PDepthStencilState = &depthStencil
                 };
 
                 fixed (Pipeline* pGraphicsPipeline = &this.pipeline)

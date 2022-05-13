@@ -82,7 +82,7 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
                 sourceStage = PipelineStageFlags.PipelineStageTransferBit;
                 destinationStage = PipelineStageFlags.PipelineStageFragmentShaderBit;
             }
-            if (oldLayout == ImageLayout.Undefined && newLayout == ImageLayout.DepthStencilAttachmentOptimal)
+            else if (oldLayout == ImageLayout.Undefined && newLayout == ImageLayout.DepthStencilAttachmentOptimal)
             {
                 barrier.SrcAccessMask = 0;
                 barrier.DstAccessMask = AccessFlags.AccessDepthStencilAttachmentReadBit | AccessFlags.AccessDepthStencilAttachmentWriteBit;
