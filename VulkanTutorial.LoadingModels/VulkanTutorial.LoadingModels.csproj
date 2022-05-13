@@ -16,12 +16,16 @@
     <None Remove="shader.frag.spv" />
     <None Remove="shader.vert.spv" />
     <None Remove="texture.jpg" />
+    <None Remove="viking_room.obj" />
+    <None Remove="viking_room.png" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="shader.frag.spv" />
     <EmbeddedResource Include="shader.vert.spv" />
     <EmbeddedResource Include="texture.jpg" />
+    <EmbeddedResource Include="viking_room.obj" />
+    <EmbeddedResource Include="viking_room.png" />
   </ItemGroup>
 
   <ItemGroup>
