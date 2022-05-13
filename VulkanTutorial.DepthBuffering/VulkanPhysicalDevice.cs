@@ -157,4 +157,20 @@ public sealed class VulkanPhysicalDevice : VulkanDependancy
                 return (uint)i;
         throw new VulkanException("failed to find suitable memory type!");
     }
+
+    public Format FindSupportedFormat(Format[] candidates, ImageTiling tiling, FormatFeatureFlags features)
+    {
+        foreach (var candidate in candidates)
+        {
+            this.Vk.GetPhysicalDeviceFormatProperties(this.physicalDevice, candidate, out var properties);
+            if (tiling == ImageTiling.Linear && (properties.LinearTilingFeatures & features) == features
+                || tiling == ImageTiling.Optimal && (properties.OptimalTilingFeatures & features) == features)
+                return candidate;                
+        }
+        throw new VulkanException("failed to find supported format!");
+    }
+
+    public Format DepthFormat => this.FindSupportedFormat(new[] { Format.D32Sfloat, Format.D32SfloatS8Uint, Format.D24UnormS8Uint }, ImageTiling.Optimal, FormatFeatureFlags.FormatFeatureDepthStencilAttachmentBit);
+
+    public bool HasStencilComponent(Format format) => format == Format.D32SfloatS8Uint || format == Format.D24UnormS8Uint;
 }

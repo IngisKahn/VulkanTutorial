@@ -8,7 +8,8 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
     public Image Image;
     public DeviceMemory Memory;
 
-    public VulkanImage(Vk vk, VulkanVirtualDevice device, uint width, uint height, Format format, ImageTiling imageTiling, ImageUsageFlags imageUsage, MemoryPropertyFlags memoryProperty) : base(vk, device)
+    public VulkanImage(Vk vk, VulkanVirtualDevice device, uint width, uint height, Format format, ImageTiling imageTiling, ImageUsageFlags imageUsage, MemoryPropertyFlags memoryProperty) 
+        : base(vk, device)
     {
         unsafe
         {
@@ -52,13 +53,18 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
 
         unsafe
         {
+            var aspect = newLayout == ImageLayout.DepthStencilAttachmentOptimal 
+                ? (this.Device.PhysicalDevice.HasStencilComponent(format) 
+                    ? ImageAspectFlags.ImageAspectDepthBit | ImageAspectFlags.ImageAspectStencilBit
+                    : ImageAspectFlags.ImageAspectDepthBit)
+                : ImageAspectFlags.ImageAspectColorBit;
             ImageMemoryBarrier barrier = new(
                 oldLayout: oldLayout, 
                 newLayout: newLayout, 
                 srcQueueFamilyIndex: Vk.QueueFamilyIgnored, 
                 dstQueueFamilyIndex: Vk.QueueFamilyIgnored,
                 image: this.Image,
-                subresourceRange: new(ImageAspectFlags.ImageAspectColorBit, 0, 1, 0, 1)
+                subresourceRange: new(aspect, 0, 1, 0, 1)
                 );
 
             PipelineStageFlags sourceStage, destinationStage;
@@ -76,6 +82,13 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
                 sourceStage = PipelineStageFlags.PipelineStageTransferBit;
                 destinationStage = PipelineStageFlags.PipelineStageFragmentShaderBit;
             }
+            if (oldLayout == ImageLayout.Undefined && newLayout == ImageLayout.DepthStencilAttachmentOptimal)
+            {
+                barrier.SrcAccessMask = 0;
+                barrier.DstAccessMask = AccessFlags.AccessDepthStencilAttachmentReadBit | AccessFlags.AccessDepthStencilAttachmentWriteBit;
+                sourceStage = PipelineStageFlags.PipelineStageTopOfPipeBit;
+                destinationStage = PipelineStageFlags.PipelineStageEarlyFragmentTestsBit;
+            }
             else
                 throw new VulkanException("unsuported layout transition!");
 
@@ -91,5 +104,27 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
         {
             this.Vk.CmdCopyBufferToImage(commandBuffer.Buffer, buffer, this.Image, ImageLayout.TransferDstOptimal, 1, &region);
         }
+    }
+}
+
+public class VulkanDepthBuffer : VulkanDeviceDependancy, IDisposable
+{
+    public VulkanImage DepthImage { get; }
+    public VulkanImageView DepthView { get; }
+
+    public VulkanDepthBuffer(Vk vk, VulkanVirtualDevice device, VulkanCommandPool commandPool, uint width, uint height) 
+        : base(vk, device)
+    {
+        var format = device.PhysicalDevice.DepthFormat;
+        this.DepthImage = new(vk, device, width, height, format, ImageTiling.Optimal, ImageUsageFlags.ImageUsageDepthStencilAttachmentBit, MemoryPropertyFlags.MemoryPropertyDeviceLocalBit);
+        this.DepthView = new(vk, device, this.DepthImage.Image, format, ImageAspectFlags.ImageAspectDepthBit);
+
+        this.DepthImage.TransitionImageLayout(commandPool, format, ImageLayout.Undefined, ImageLayout.DepthStencilAttachmentOptimal);
+    }
+
+    public void Dispose()
+    {
+        this.DepthImage.Dispose();
+        this.DepthView.Dispose();
     }
 }
