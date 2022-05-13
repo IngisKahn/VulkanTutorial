@@ -47,13 +47,21 @@ public sealed class VulkanRenderer : IDisposable
 
     private static readonly Vertex[] vertices =
     {
-        new(new(-.5f, -.5f), new(1, 0, 0), new(1, 0)),
-        new(new(.5f, -.5f), new(0, 1, 0), new(0, 0)),
-        new(new(.5f, .5f), new(0, 0, 1), new(0, 1)),
-        new(new(-.5f, .5f), new(1, 1, 1), new(1, 1))
+        new(new(-.5f, -.5f, 0), new(1, 0, 0), new(0, 0)),
+        new(new(.5f, -.5f, 0), new(0, 1, 0), new(1, 0)),
+        new(new(.5f, .5f, 0), new(0, 0, 1), new(1, 1)),
+        new(new(-.5f, .5f, 0), new(1, 1, 1), new(0, 1)),
+
+
+        new(new(-.5f, -.5f, -.5f), new(1, 0, 0), new(0, 0)),
+        new(new(.5f, -.5f, -.5f), new(0, 1, 0), new(1, 0)),
+        new(new(.5f, .5f, -.5f), new(0, 0, 1), new(1, 1)),
+        new(new(-.5f, .5f, -.5f), new(1, 1, 1), new(0, 1))
     };
 
-    private static readonly ushort[] indices = { 0, 1, 2, 2, 3, 0 };
+    private static readonly ushort[] indices = 
+        { 0, 1, 2, 2, 3, 0,
+          4, 5, 6, 6, 7, 4};
 
     public VulkanRenderer(VulkanWindow window)
     {
