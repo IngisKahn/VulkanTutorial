@@ -10,6 +10,38 @@ using System.Reflection;
 
 namespace VulkanTutorial.DepthBuffering;
 
+public sealed class QuickList<T>
+{
+    public T[] Data = Array.Empty<T>();
+
+    private int capacity;
+    public int Length;
+
+    public QuickList() { }
+    public QuickList(int capacity) => this.EnsureCapacity(capacity);
+
+    private void EnsureCapacity(int newCapacity)
+    {
+        if (newCapacity <= this.capacity)
+            return;
+        var testCapacity = capacity * 2;
+        if (newCapacity < testCapacity)
+            newCapacity = testCapacity;
+
+        this.capacity = newCapacity;
+        var newData = new T[newCapacity];
+        Array.Copy(this.Data, newData, this.Length);
+        this.Data = newData;
+
+    }
+
+    public void Add(T item)
+    {
+        this.EnsureCapacity(this.Length + 1);
+        this.Data[this.Length++] = item;
+    }
+}
+
 public sealed class VulkanRenderer : IDisposable
 {
     private readonly VulkanWindow window;
@@ -45,23 +77,8 @@ public sealed class VulkanRenderer : IDisposable
 
     private static readonly string[] deviceExtensions = { KhrSwapchain.ExtensionName };
 
-    private static readonly Vertex[] vertices =
-    {
-        new(new(-.5f, -.5f, 0), new(1, 0, 0), new(0, 0)),
-        new(new(.5f, -.5f, 0), new(0, 1, 0), new(1, 0)),
-        new(new(.5f, .5f, 0), new(0, 0, 1), new(1, 1)),
-        new(new(-.5f, .5f, 0), new(1, 1, 1), new(0, 1)),
-
-
-        new(new(-.5f, -.5f, -.5f), new(1, 0, 0), new(0, 0)),
-        new(new(.5f, -.5f, -.5f), new(0, 1, 0), new(1, 0)),
-        new(new(.5f, .5f, -.5f), new(0, 0, 1), new(1, 1)),
-        new(new(-.5f, .5f, -.5f), new(1, 1, 1), new(0, 1))
-    };
-
-    private static readonly ushort[] indices = 
-        { 0, 1, 2, 2, 3, 0,
-          4, 5, 6, 6, 7, 4};
+    private readonly QuickList<Vertex> vertices = new();
+    private readonly QuickList<uint> indices = new();
 
     public VulkanRenderer(VulkanWindow window)
     {
@@ -95,13 +112,35 @@ public sealed class VulkanRenderer : IDisposable
 
 
         var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
-        using var s = typeof(Program).Assembly.GetManifestResourceStream(assemblyName + ".texture.jpg");
+        using var s = typeof(Program).Assembly.GetManifestResourceStream(assemblyName + ".viking_room.png");
         this.textureImage = new(this.vk, this.device, this.commandPool, s);
         this.textureSampler = new(this.vk, this.device);
         this.descriptorSets = new(this.vk, this.device, this.descriptorSetLayout, this.uniformBuffers, this.textureImage, this.textureSampler);
 
-        this.vertexBuffer = new(this.vk, this.device, this.commandPool, vertices);
-        this.indexBuffer = new(this.vk, this.device, this.commandPool, indices);
+        using var o = typeof(Program).Assembly.GetManifestResourceStream(assemblyName + ".viking_room.obj");
+        var objData = ObjLoader.TinyObjLoader.LoadObj(o);
+        Dictionary<Vertex, uint> indexMap = new();
+        foreach (var shape in objData.Shapes)
+            foreach (var meshIndex in shape.Mesh.Indices)
+            {
+                Vertex vertex = new(new(
+                    objData.Attrib.Vertices[3 * meshIndex.VertexIndex],
+                    objData.Attrib.Vertices[3 * meshIndex.VertexIndex + 1],
+                    objData.Attrib.Vertices[3 * meshIndex.VertexIndex + 2]),
+                    new(1, 1, 1),
+                    new(
+                        objData.Attrib.Texcoords[2 * meshIndex.TexcoordIndex],
+                        1 - objData.Attrib.Texcoords[2 * meshIndex.TexcoordIndex + 1]));
+                if (!indexMap.TryGetValue(vertex, out var index))
+                {
+                    indexMap[vertex] = index = (uint)vertices.Length;
+                    vertices.Add(vertex);
+                }
+                indices.Add(index);
+            }
+
+        this.vertexBuffer = new(this.vk, this.device, this.commandPool, vertices.Data);
+        this.indexBuffer = new(this.vk, this.device, this.commandPool, indices.Data);
 
 
         this.commandBuffers = new(this.vk, this.device, this.swapchain, this.commandPool, this.indexBuffer, this.vertexBuffer, indices.Length, descriptorSets);

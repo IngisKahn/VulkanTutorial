@@ -49,7 +49,7 @@ namespace ObjLoader
 
             StringBuilder ret = new StringBuilder();
 
-            while (Current is not -1)
+            while (Current is not 0)
             {
                 char c = (char)_reader.Read();
                 if (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\0')
@@ -65,7 +65,7 @@ namespace ObjLoader
                 ret.Append(c);
             }
 
-            if (ret.Length is 0 || Current is -1)
+            if (ret.Length is 0 || Current is 0)
             {
                 Eof = true;
             }

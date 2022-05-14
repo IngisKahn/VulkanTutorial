@@ -35,7 +35,7 @@ public class VulkanSwapChain : IDisposable
         var swapChainSupport = physicalDevice.QuerySwapChainSupport();
 
         var surfaceFormat =
-            swapChainSupport.Formats.FirstOrDefault(f => f.Format == Format.B8G8R8Unorm, swapChainSupport.Formats[0]);
+            swapChainSupport.Formats.FirstOrDefault(f => f.Format == Format.B8G8R8A8Srgb, swapChainSupport.Formats[0]);
         var presentMode = swapChainSupport.PresentModes.FirstOrDefault(p => p == PresentModeKHR.PresentModeMailboxKhr,
             PresentModeKHR.PresentModeFifoKhr);
         Extent2D extent;

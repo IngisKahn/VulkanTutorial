@@ -4,7 +4,7 @@ using Silk.NET.Vulkan;
 
 namespace VulkanTutorial.DepthBuffering;
 
-public readonly struct Vertex
+public readonly record struct Vertex
 {
     public readonly Vector3D<float> Position;
     public readonly Vector3D<float> Color;

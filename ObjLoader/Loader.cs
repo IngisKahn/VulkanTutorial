@@ -1238,6 +1238,17 @@ namespace ObjLoader
 
 		}
 
+		public static LoaderData LoadObj(Stream stream, string mtl_basedir = null, bool triangulate = true)
+		{
+
+			using StreamReader ifs = new StreamReader(stream);
+
+			MaterialFileReader matFileReader = new MaterialFileReader(mtl_basedir);
+
+			return LoadObj(ifs, matFileReader, triangulate);
+
+		}
+
 		private static LoaderData LoadObj(TextReader inStream, MaterialReader readMatFn, bool triangulate)
 		{
 			string err = string.Empty;
@@ -1366,6 +1377,7 @@ namespace ObjLoader
 				// load mtl
 				if (token == "mtllib")
 				{
+					continue;
 					if (readMatFn != null)
 					{
 						string[] filenames = lineReader.ReadSplit(' ', '\t');
