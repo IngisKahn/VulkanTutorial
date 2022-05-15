@@ -8,21 +8,22 @@ public sealed class VulkanFrameBuffers : VulkanDeviceDependancy, IDisposable
     public int Length => this.framebuffers.Length;
     public Framebuffer this[int i] => this.framebuffers[i];
 
-    public VulkanFrameBuffers(Vk vk, VulkanVirtualDevice device, VulkanSwapChain swapChain, VulkanImageView depthImageView) : base(vk, device)
+    public VulkanFrameBuffers(Vk vk, VulkanVirtualDevice device, VulkanSwapChain swapChain, VulkanImageView depthImageView, VulkanImageView colorImageView) : base(vk, device)
     {
         this.framebuffers = new Framebuffer[swapChain.ImageViews.Length];
 
         unsafe
         {
-            var attachments = stackalloc ImageView[2];
+            var attachments = stackalloc ImageView[3];
             attachments[1] = depthImageView.ImageView;
+            attachments[0] = colorImageView.ImageView;
             for (var i = 0; i < swapChain.ImageViews.Length; i++)
             {
-                attachments[0] = swapChain.ImageViews[i].ImageView;
+                attachments[2] = swapChain.ImageViews[i].ImageView;
                 Framebuffer framebuffer = new();
                 FramebufferCreateInfo framebufferInfo = new(
                     renderPass: swapChain.RenderPass.RenderPass,
-                    attachmentCount: 2,
+                    attachmentCount: 3,
                     pAttachments: attachments,
                     width: swapChain.SwapchainExtent.Width,
                     height: swapChain.SwapchainExtent.Height,

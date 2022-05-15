@@ -26,6 +26,7 @@ public class VulkanSwapChain : IDisposable
     public VulkanFrameBuffers FrameBuffers { get; }
 
     private readonly VulkanDepthBuffer depthBuffer;
+    private readonly VulkanSampleBuffer sampleBuffer;
 
     public VulkanSwapChain(Vk vk, IWindow window, VulkanInstance instance, VulkanPhysicalDevice physicalDevice,
         VulkanVirtualDevice device, in SurfaceKHR surface, VulkanDescriptorSetLayout descriptorSetLayout, VulkanCommandPool commandPool)
@@ -116,12 +117,14 @@ public class VulkanSwapChain : IDisposable
         swapchainImageFormat = surfaceFormat.Format;
         swapchainExtent = extent;
 
-        this.depthBuffer = new(vk, device, commandPool, extent.Width, extent.Height);
+        var samples = physicalDevice.MsaaSamples;
+        this.depthBuffer = new(vk, device, commandPool, extent.Width, extent.Height, samples);
+        this.sampleBuffer = new(vk, device, swapchainImageFormat, extent.Width, extent.Height, samples);
 
         this.imageViews = new(vk, device, this);
-        this.RenderPass = new(vk, device, this);
+        this.RenderPass = new(vk, device, this, samples);
         this.GraphicsPipeline = new(vk, device, this, descriptorSetLayout);
-        this.FrameBuffers = new(vk, device, this, this.depthBuffer.DepthView);
+        this.FrameBuffers = new(vk, device, this, this.depthBuffer.DepthView, sampleBuffer.SampleView);
     }
 
     public void Dispose()
@@ -133,6 +136,7 @@ public class VulkanSwapChain : IDisposable
             this.RenderPass.Dispose();
             this.imageViews.Dispose();
             this.depthBuffer.Dispose();
+            this.sampleBuffer.Dispose();
             this.vkSwapchain.DestroySwapchain(this.device.Device, this.swapchain, null);
         }
     }

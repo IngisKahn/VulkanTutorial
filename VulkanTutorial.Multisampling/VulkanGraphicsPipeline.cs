@@ -101,7 +101,7 @@ public class VulkanGraphicsPipeline : VulkanDeviceDependancy, IDisposable
                 {
                     SType = StructureType.PipelineMultisampleStateCreateInfo,
                     SampleShadingEnable = Vk.False,
-                    RasterizationSamples = SampleCountFlags.SampleCount1Bit
+                    RasterizationSamples = this.Device.PhysicalDevice.MsaaSamples
                 };
 
                 PipelineColorBlendAttachmentState colorBlendAttachment = new()

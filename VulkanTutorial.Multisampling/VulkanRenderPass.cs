@@ -7,13 +7,24 @@ public sealed class VulkanRenderPass : VulkanDeviceDependancy, IDisposable
     private readonly RenderPass renderPass;
     public RenderPass RenderPass => this.renderPass;
 
-    public VulkanRenderPass(Vk vk, VulkanVirtualDevice device, VulkanSwapChain swapChain) : base(vk, device)
+    public VulkanRenderPass(Vk vk, VulkanVirtualDevice device, VulkanSwapChain swapChain, SampleCountFlags sampleCount) : base(vk, device)
     {
         AttachmentDescription colorAttachment = new()
         {
             Format = swapChain.SwapchainImageFormat,
-            Samples = SampleCountFlags.SampleCount1Bit,
+            Samples = sampleCount,
             LoadOp = AttachmentLoadOp.Clear,
+            StoreOp = AttachmentStoreOp.Store,
+            StencilLoadOp = AttachmentLoadOp.DontCare,
+            StencilStoreOp = AttachmentStoreOp.DontCare,
+            InitialLayout = ImageLayout.Undefined,
+            FinalLayout = ImageLayout.ColorAttachmentOptimal
+        };
+        AttachmentDescription colorAttachmentResolve = new()
+        {
+            Format = swapChain.SwapchainImageFormat,
+            Samples = SampleCountFlags.SampleCount1Bit,
+            LoadOp = AttachmentLoadOp.DontCare,
             StoreOp = AttachmentStoreOp.Store,
             StencilLoadOp = AttachmentLoadOp.DontCare,
             StencilStoreOp = AttachmentStoreOp.DontCare,
@@ -23,7 +34,7 @@ public sealed class VulkanRenderPass : VulkanDeviceDependancy, IDisposable
         AttachmentDescription depthAttachment = new()
         {
             Format = device.PhysicalDevice.DepthFormat,
-            Samples = SampleCountFlags.SampleCount1Bit,
+            Samples = sampleCount,
             LoadOp = AttachmentLoadOp.Clear,
             StoreOp = AttachmentStoreOp.DontCare,
             StencilLoadOp = AttachmentLoadOp.DontCare,
@@ -42,6 +53,11 @@ public sealed class VulkanRenderPass : VulkanDeviceDependancy, IDisposable
             Attachment = 1,
             Layout = ImageLayout.DepthStencilAttachmentOptimal
         };
+        AttachmentReference colorAttachmentResolveRef = new()
+        {
+            Attachment = 2,
+            Layout = ImageLayout.ColorAttachmentOptimal
+        };
 
         unsafe
         {
@@ -50,7 +66,8 @@ public sealed class VulkanRenderPass : VulkanDeviceDependancy, IDisposable
                 PipelineBindPoint = PipelineBindPoint.Graphics,
                 ColorAttachmentCount = 1,
                 PColorAttachments = &colorAttachmentRef,
-                PDepthStencilAttachment = &depthAttachmentRef
+                PDepthStencilAttachment = &depthAttachmentRef,
+                PResolveAttachments = &colorAttachmentResolveRef
             };
 
             SubpassDependency dependency = new()
@@ -63,9 +80,9 @@ public sealed class VulkanRenderPass : VulkanDeviceDependancy, IDisposable
                 DstAccessMask = AccessFlags.AccessColorAttachmentReadBit | AccessFlags.AccessColorAttachmentWriteBit | AccessFlags.AccessDepthStencilAttachmentWriteBit
             };
 
-            var attachments = stackalloc AttachmentDescription[2] { colorAttachment, depthAttachment };
+            var attachments = stackalloc AttachmentDescription[3] { colorAttachment, depthAttachment, colorAttachmentResolve };
             RenderPassCreateInfo renderPassInfo = new(
-                attachmentCount: 2,
+                attachmentCount: 3,
                 pAttachments: attachments,
                 subpassCount: 1,
                 pSubpasses: &subpass,

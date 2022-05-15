@@ -8,7 +8,7 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
     public Image Image;
     public DeviceMemory Memory;
 
-    public VulkanImage(Vk vk, VulkanVirtualDevice device, uint width, uint height, uint mipLevels, Format format, ImageTiling imageTiling, ImageUsageFlags imageUsage, MemoryPropertyFlags memoryProperty) 
+    public VulkanImage(Vk vk, VulkanVirtualDevice device, uint width, uint height, uint mipLevels, Format format, ImageTiling imageTiling, ImageUsageFlags imageUsage, MemoryPropertyFlags memoryProperty, SampleCountFlags sampleCount = SampleCountFlags.SampleCount1Bit) 
         : base(vk, device)
     {
         unsafe
@@ -23,7 +23,7 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
                 initialLayout: ImageLayout.Undefined,
                 usage: imageUsage,
                 sharingMode: SharingMode.Exclusive,
-                samples: SampleCountFlags.SampleCount1Bit);
+                samples: sampleCount);
 
             fixed (Image* pImage = &this.Image)
                 if (this.Vk.CreateImage(this.Device.Device, in imageInfo, null, pImage) != Result.Success)
