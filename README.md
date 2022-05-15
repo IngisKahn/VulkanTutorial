@@ -1,6 +1,4 @@
 # VulkanTutorial
 VulkanTutorial in C# using Silk.NET
 
-I'm following vulkan-tutorial.com. I've tried to divide up the logic into classes, but the desgin will slowly change as I tackle each lesson.
-
-Next up is texture mapping.
+I followed vulkan-tutorial.com. I've tried to divide up the logic into classes, but it will need some tweaking to be useful as a general purpose renderer.
