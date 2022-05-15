@@ -8,7 +8,7 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
     public Image Image;
     public DeviceMemory Memory;
 
-    public VulkanImage(Vk vk, VulkanVirtualDevice device, uint width, uint height, Format format, ImageTiling imageTiling, ImageUsageFlags imageUsage, MemoryPropertyFlags memoryProperty) 
+    public VulkanImage(Vk vk, VulkanVirtualDevice device, uint width, uint height, uint mipLevels, Format format, ImageTiling imageTiling, ImageUsageFlags imageUsage, MemoryPropertyFlags memoryProperty) 
         : base(vk, device)
     {
         unsafe
@@ -16,7 +16,7 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
             ImageCreateInfo imageInfo = new(
                 imageType: ImageType.ImageType2D,
                 extent: new(width, height, 1u),
-                mipLevels: 1,
+                mipLevels: mipLevels,
                 arrayLayers: 1,
                 format: format,
                 tiling: imageTiling,
@@ -47,7 +47,7 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
         }
     }
 
-    public void TransitionImageLayout(VulkanCommandPool commandPool, Format format, ImageLayout oldLayout, ImageLayout newLayout)
+    public void TransitionImageLayout(VulkanCommandPool commandPool, Format format, ImageLayout oldLayout, ImageLayout newLayout, uint mipLevels)
     {
         using VulkanCommandBuffer commandBuffer = new(this.Vk, this.Device, commandPool.CommandPool);
 
@@ -64,7 +64,7 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
                 srcQueueFamilyIndex: Vk.QueueFamilyIgnored, 
                 dstQueueFamilyIndex: Vk.QueueFamilyIgnored,
                 image: this.Image,
-                subresourceRange: new(aspect, 0, 1, 0, 1)
+                subresourceRange: new(aspect, 0, mipLevels, 0, 1)
                 );
 
             PipelineStageFlags sourceStage, destinationStage;
@@ -104,27 +104,5 @@ public class VulkanImage : VulkanDeviceDependancy, IDisposable
         {
             this.Vk.CmdCopyBufferToImage(commandBuffer.Buffer, buffer, this.Image, ImageLayout.TransferDstOptimal, 1, &region);
         }
-    }
-}
-
-public class VulkanDepthBuffer : VulkanDeviceDependancy, IDisposable
-{
-    public VulkanImage DepthImage { get; }
-    public VulkanImageView DepthView { get; }
-
-    public VulkanDepthBuffer(Vk vk, VulkanVirtualDevice device, VulkanCommandPool commandPool, uint width, uint height) 
-        : base(vk, device)
-    {
-        var format = device.PhysicalDevice.DepthFormat;
-        this.DepthImage = new(vk, device, width, height, format, ImageTiling.Optimal, ImageUsageFlags.ImageUsageDepthStencilAttachmentBit, MemoryPropertyFlags.MemoryPropertyDeviceLocalBit);
-        this.DepthView = new(vk, device, this.DepthImage.Image, format, ImageAspectFlags.ImageAspectDepthBit);
-
-        this.DepthImage.TransitionImageLayout(commandPool, format, ImageLayout.Undefined, ImageLayout.DepthStencilAttachmentOptimal);
-    }
-
-    public void Dispose()
-    {
-        this.DepthImage.Dispose();
-        this.DepthView.Dispose();
     }
 }

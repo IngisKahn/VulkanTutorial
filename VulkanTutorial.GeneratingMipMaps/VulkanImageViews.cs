@@ -12,7 +12,7 @@ public sealed class VulkanImageViews : VulkanDeviceDependancy, IDisposable
 
         for (var i = 0; i < images.Length; i++)
         {
-            this.swapchainImageViews[i] = new(vk, device, images[i], format);
+            this.swapchainImageViews[i] = new(vk, device, images[i], format, 1);
         }
     }
 

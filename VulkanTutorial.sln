@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VulkanTutorial.LoadingModel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjLoader", "ObjLoader\ObjLoader.csproj", "{82281004-9FBC-4108-B254-F8A3A3C68F98}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VulkanTutorial.GeneratingMipMaps", "VulkanTutorial.GeneratingMipMaps\VulkanTutorial.GeneratingMipMaps.csproj", "{60D53D66-3223-4552-8ACC-652E001E5733}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{82281004-9FBC-4108-B254-F8A3A3C68F98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82281004-9FBC-4108-B254-F8A3A3C68F98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82281004-9FBC-4108-B254-F8A3A3C68F98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60D53D66-3223-4552-8ACC-652E001E5733}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60D53D66-3223-4552-8ACC-652E001E5733}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60D53D66-3223-4552-8ACC-652E001E5733}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60D53D66-3223-4552-8ACC-652E001E5733}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

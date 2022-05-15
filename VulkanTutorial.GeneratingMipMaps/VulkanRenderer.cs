@@ -114,7 +114,7 @@ public sealed class VulkanRenderer : IDisposable
         var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
         using var s = typeof(Program).Assembly.GetManifestResourceStream(assemblyName + ".viking_room.png");
         this.textureImage = new(this.vk, this.device, this.commandPool, s);
-        this.textureSampler = new(this.vk, this.device);
+        this.textureSampler = new(this.vk, this.device, this.textureImage.MipLevels);
         this.descriptorSets = new(this.vk, this.device, this.descriptorSetLayout, this.uniformBuffers, this.textureImage, this.textureSampler);
 
         using var o = typeof(Program).Assembly.GetManifestResourceStream(assemblyName + ".viking_room.obj");

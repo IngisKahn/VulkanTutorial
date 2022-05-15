@@ -4,8 +4,8 @@ using Silk.NET.Vulkan;
 public sealed class VulkanImageView : VulkanDeviceDependancy, IDisposable
 {
     public ImageView ImageView;
-    public VulkanImageView(Vk vk, VulkanVirtualDevice device, VulkanImage image, Format format, ImageAspectFlags aspectFlags = ImageAspectFlags.ImageAspectColorBit) : this(vk, device, image.Image, format, aspectFlags) { }
-    internal VulkanImageView(Vk vk, VulkanVirtualDevice device, Image image, Format format, ImageAspectFlags aspectFlags = ImageAspectFlags.ImageAspectColorBit) : base(vk, device)
+    public VulkanImageView(Vk vk, VulkanVirtualDevice device, VulkanImage image, Format format, uint mipLevels, ImageAspectFlags aspectFlags = ImageAspectFlags.ImageAspectColorBit) : this(vk, device, image.Image, format, mipLevels, aspectFlags) { }
+    internal VulkanImageView(Vk vk, VulkanVirtualDevice device, Image image, Format format, uint mipLevels, ImageAspectFlags aspectFlags = ImageAspectFlags.ImageAspectColorBit) : base(vk, device)
     {
         var createInfo = new ImageViewCreateInfo
         {
@@ -24,7 +24,7 @@ public sealed class VulkanImageView : VulkanDeviceDependancy, IDisposable
                 {
                     AspectMask = aspectFlags,
                     BaseMipLevel = 0,
-                    LevelCount = 1,
+                    LevelCount = mipLevels,
                     BaseArrayLayer = 0,
                     LayerCount = 1
                 }
