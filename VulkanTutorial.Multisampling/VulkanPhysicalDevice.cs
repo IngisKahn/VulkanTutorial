@@ -19,6 +19,7 @@ public sealed class VulkanPhysicalDevice : VulkanDependancy
     private readonly SurfaceKHR surface;
     private readonly PhysicalDevice physicalDevice;
     public PhysicalDevice PhysicalDevice => this.physicalDevice;
+    public SampleCountFlags MsaaSamples { get; private set; }
 
     public VulkanPhysicalDevice(Vk vk, KhrSurface vkSurface, in SurfaceKHR surface, VulkanInstance instance, string[] deviceExtensions) : base(vk)
     {
@@ -56,9 +57,10 @@ public sealed class VulkanPhysicalDevice : VulkanDependancy
             var (_, surfaceFormatKhrs, presentModeKhrs) = QuerySwapChainSupport(in device);
             var swapChainAdequate = surfaceFormatKhrs.Length != 0 && presentModeKhrs.Length != 0;
 
-            if (!indices.IsComplete || !extensionsSupported || !swapChainAdequate) 
+            if (!indices.IsComplete || !extensionsSupported || !swapChainAdequate)
                 continue;
             physicalDevice = device;
+            this.MsaaSamples = this.GetMaxUsableSampleCount();
             break;
         }
 
@@ -165,7 +167,7 @@ public sealed class VulkanPhysicalDevice : VulkanDependancy
             this.Vk.GetPhysicalDeviceFormatProperties(this.physicalDevice, candidate, out var properties);
             if (tiling == ImageTiling.Linear && (properties.LinearTilingFeatures & features) == features
                 || tiling == ImageTiling.Optimal && (properties.OptimalTilingFeatures & features) == features)
-                return candidate;                
+                return candidate;
         }
         throw new VulkanException("failed to find supported format!");
     }
@@ -173,4 +175,24 @@ public sealed class VulkanPhysicalDevice : VulkanDependancy
     public Format DepthFormat => this.FindSupportedFormat(new[] { Format.D32Sfloat, Format.D32SfloatS8Uint, Format.D24UnormS8Uint }, ImageTiling.Optimal, FormatFeatureFlags.FormatFeatureDepthStencilAttachmentBit);
 
     public bool HasStencilComponent(Format format) => format == Format.D32SfloatS8Uint || format == Format.D24UnormS8Uint;
+
+    private SampleCountFlags GetMaxUsableSampleCount()
+    {
+        this.Vk.GetPhysicalDeviceProperties(this.physicalDevice, out var properties);
+
+        var counts = properties.Limits.FramebufferColorSampleCounts & properties.Limits.FramebufferDepthSampleCounts;
+
+
+        if ((counts & SampleCountFlags.SampleCount64Bit) != 0)
+            return SampleCountFlags.SampleCount64Bit;
+        if ((counts & SampleCountFlags.SampleCount32Bit) != 0)
+            return SampleCountFlags.SampleCount32Bit;
+        if ((counts & SampleCountFlags.SampleCount16Bit) != 0)
+            return SampleCountFlags.SampleCount16Bit;
+        if ((counts & SampleCountFlags.SampleCount8Bit) != 0)
+            return SampleCountFlags.SampleCount8Bit;
+        if ((counts & SampleCountFlags.SampleCount4Bit) != 0)
+            return SampleCountFlags.SampleCount4Bit;
+        return (counts & SampleCountFlags.SampleCount2Bit) != 0 ? SampleCountFlags.SampleCount2Bit : SampleCountFlags.SampleCount1Bit;
+    }
 }
